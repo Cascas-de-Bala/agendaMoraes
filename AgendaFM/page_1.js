@@ -5,40 +5,52 @@ import { FontAwesome } from '@expo/vector-icons';
 import { useAddContact } from './page_4';
 
 export default function Screen1() {
-    const navigation = useNavigation()
-    const { addContact, contacts } = useAddContact(); // Obtenha os contatos do contexto
+    const navigation = useNavigation();
+    const { contacts, updateContact } = useAddContact();
     const [search, setSearch] = useState('');
-    const [localContacts, setLocalContacts] = useState(contacts); // Use localContacts para exibir na FlatList
+    const [localContacts, setLocalContacts] = useState([]);
 
-    const route = useRoute();
+    useEffect(() => {
+        setLocalContacts(contacts);
+    }, [contacts]);
 
     const handleAddPress = () => {
         navigation.navigate('addContact');
     };
-
-    useEffect(() => {
-        setLocalContacts(contacts); // Atualize localContacts quando os contatos mudarem
-    }, [contacts]);
 
     const handleEditPress = (contact) => {
         navigation.navigate('editContact', { contact });
     };
 
     const handleDeletePress = (contact) => {
-        const updatedContacts = localContacts.filter(c => c !== contact); // Atualize localContacts
+        Alert.alert(
+            'Confirmar exclusão',
+            'Tem certeza de que deseja excluir este contato permanentemente?',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                { text: 'Excluir', style: 'destructive', onPress: () => deleteContact(contact) }
+            ]
+        );
+    };
+
+    const deleteContact = (contactToDelete) => {
+        const updatedContacts = localContacts.filter(c => c !== contactToDelete);
         setLocalContacts(updatedContacts);
-    }
+        updateContact(contactToDelete); // Exclui o contato permanentemente
+    };
 
     const handleUpdateContact = (oldContact, updatedContact) => {
         const updatedContacts = localContacts.map(contact =>
             contact === oldContact ? updatedContact : contact
         );
-        setLocalContacts(updatedContacts); // Atualize localContacts
+        setLocalContacts(updatedContacts);
     };
 
     const filteredContacts = localContacts.filter(contact =>
         contact.nome.toLowerCase().includes(search.toLowerCase())
     );
+
+    const sortedContacts = filteredContacts.sort((a, b) => a.nome.localeCompare(b.nome));
 
     return (
         <View style={styles.container}>
@@ -61,12 +73,12 @@ export default function Screen1() {
                 </View>
             )}
             <FlatList
-                data={filteredContacts.slice(0)}
-                keyExtractor={(item) => item.nome}
+                data={sortedContacts.slice(0)}
+                keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity
                         onPress={() => {
-                            navigation.navigate('editContact', { contact: item, handleUpdateContact });
+                            navigation.navigate('editContact', { contact: item });
                         }}
                     >
                         <View style={styles.contactItem}>

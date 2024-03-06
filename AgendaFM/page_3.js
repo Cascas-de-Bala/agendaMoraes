@@ -9,7 +9,7 @@ const EditContactScreen = () => {
     const navigation = useNavigation();
     const route = useRoute();
     const { contact } = route.params;
-    
+
     const [name, setName] = useState(contact ? contact.nome : '');
     const [phone, setPhone] = useState(contact ? contact.telefone : '');
     const [email, setEmail] = useState(contact ? contact.email : '');
@@ -17,6 +17,12 @@ const EditContactScreen = () => {
     const [color, setColor] = useState(contact ? contact.imagem : 'gray');
 
     const saveContact = () => {
+        // Verifica se o contato existe
+        if (!contact) {
+            return;
+        }
+
+        // Atualiza o contato existente com os novos dados
         const updatedContact = {
             ...contact,
             nome: name,
@@ -33,7 +39,7 @@ const EditContactScreen = () => {
         navigation.goBack();
     };
 
-    const colors = ['red', 'green', 'blue', 'yellow', 'purple']; // Defina as cores aqui
+    const colors = ['white', 'red', 'green', 'blue', 'pink', 'lime', 'gray', 'yellow'];
 
     return (
         <View style={styles.container}>
